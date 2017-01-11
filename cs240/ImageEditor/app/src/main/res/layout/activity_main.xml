@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp">
+
+    <LinearLayout
+        android:id="@+id/button_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/image_view_container">
+
+        <Button
+            android:id="@+id/invert_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="Invert"/>
+
+        <Button
+            android:id="@+id/grayscale_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="Grayscale"/>
+
+        <Button
+            android:id="@+id/emboss_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="Emboss"/>
+
+        <Button
+            android:id="@+id/motion_blur_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="Motion Blur"/>
+
+        <Button
+            android:id="@+id/original_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="Original"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/image_view_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/ppm_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_centerInParent="true"
+            android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/button_panel">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Blur Length: "/>
+
+        <EditText
+            android:id="@+id/blur_length_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="2"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/file_selector_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

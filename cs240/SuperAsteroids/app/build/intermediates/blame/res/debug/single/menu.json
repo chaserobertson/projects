@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/build/intermediates/res/merged/debug/menu/main.xml",
+        "source": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/src/main/res/menu/main.xml"
+    },
+    {
+        "merged": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/build/intermediates/res/merged/debug/menu/menu_main.xml",
+        "source": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/src/main/res/menu/menu_main.xml"
+    },
+    {
+        "merged": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/build/intermediates/res/merged/debug/menu/menu_import.xml",
+        "source": "/Users/chaserobertson/GoogleDrive/School/CS240/SuperAsteroids/app/src/main/res/menu/menu_import.xml"
+    }
+]

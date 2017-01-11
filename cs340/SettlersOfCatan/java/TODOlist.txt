@@ -1,0 +1,15 @@
+Team CoW
+1. Login Controller
+2. Start Functions to get into a game (I'm unsure where these are defined
+
+Team MounTain
+1. GuiModelFacade - implement functions to get info from the JUNKMODEL
+2. Rolling action
+3. Turn Tracking / changing turns
+4. Discarding
+5. Chat and Log
+6. Bank/Resource Management
+7. Map actions (build/place)
+8. Setup Round Controller
+9. Tading
+10. Playing Dev Cards

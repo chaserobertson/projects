@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:id="@+id/searchListItem">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/searchItemImage"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_settings_gear"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Default Name"
+        android:id="@+id/searchItemText1"
+        android:layout_toRightOf="@id/searchItemImage" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Default Description"
+        android:id="@+id/searchItemText2"
+        android:layout_below="@id/searchItemText1"
+        android:layout_toRightOf="@id/searchItemImage" />
+
+    <View
+        android:layout_below="@id/searchItemText2"
+        style="@style/Divider"/>
+
+</RelativeLayout>

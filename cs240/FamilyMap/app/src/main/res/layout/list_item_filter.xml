@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Default Name"
+        android:id="@+id/eventType"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Default Description"
+        android:id="@+id/eventDescription"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/eventType"/>
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/eventSwitch"
+        android:padding="5dp"
+        android:checked="true"
+        android:layout_alignParentRight="true" />
+
+    <View
+        android:layout_below="@id/eventDescription"
+        style="@style/Divider"/>
+
+</RelativeLayout>

@@ -1,0 +1,224 @@
+﻿<project name="Settlers Of Catan" default="server" basedir=".">
+
+	<!-- PROPERTIES -->
+	<!-- ********** -->
+
+	<!-- Directory paths for the java server, javascript, and dest dir for the student copy -->
+    <property name="port.arg" value="8081"/>
+    <property name="web.arg" value="gameplay"/>
+    <property name="options.arg" value="ug"/>
+
+    <!-- Input folders -->
+    <property name="java.dir" value="java"/>
+    <property name="java.src.dir" value="${java.dir}/src"/>
+    <property name="java.lib.dir" value="${java.dir}/lib"/>
+    <!-- JavaScript source folder -->
+    <property name="javascript.dir" value="gameplay/js"/>
+    <!-- Base output folder -->
+    <property name="dest.dir" value="docs"/>
+    <!-- Javadoc output folder -->
+    <property name="javadoc.dir" value="${dest.dir}/java"/>
+    <!-- YUIDoc output folder -->
+    <property name="yuidoc.dir" value="${dest.dir}/javascript"/>
+    <!-- Jar file path/name from here -->
+	<property name="demo.dir" value="demo"/>
+    <property name="server.jar.file" value="${demo.dir}/server.jar"/>
+    <property name="client.jar.file" value="${demo.dir}/client.jar"/>
+	<!-- General-use directory names -->
+    <property name="java.test" location="${java.dir}/test"/>
+    <property name="java.src" location="${java.dir}/src"/>
+    <property name="java.images" location="${java.dir}/images"/>
+    <property name="java.build" location="${java.dir}/bin"/>
+    <property name="java.dist" location="${java.dir}/dist"/>
+    <property name="java.lib" location="${java.dir}/lib"/>
+	<property name="java.saves" location="${java.dir}/saves"/>
+	<property name="classpath" value="lib/junit-4.12.jar lib/hamcrest-core-1.3.jar lib/gson-2.2.4.jar lib/sqlite-jdbc-3.15.1.jar"/>
+
+	<!-- CLASSPATHS -->
+	<!-- ********** -->
+
+	<path id="java.lib.classpath">
+		<pathelement location="lib/hamcrest-core-1.3.jar"/>
+		<pathelement location="lib/gson-2.2.4.jar"/>
+		<pathelement location="lib/sqlite-jdbc-3.15.1.jar"/>
+		<pathelement location="${java.build}"/>
+		<fileset dir="${java.lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+    <path id="test-classpath">
+        <pathelement location="lib/junit-4.12.jar"/>
+        <pathelement location="lib/hamcrest-core-1.3.jar"/>
+		<pathelement location="lib/gson-2.2.4.jar"/>
+		<pathelement location="lib/sqlite-jdbc-3.15.1.jar"/>
+		<pathelement location="${java.build}"/>
+        <fileset dir="${java.lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+	<!-- TARGETS -->
+	<!-- ******* -->
+
+	<!--for the test target-->
+	<target name="init-test" description="prep to build">
+		<mkdir dir="${java.build}"/>
+	</target>
+	<target name="compile-test" depends="init-test" description="compile the test and source code">
+		<javac srcdir="${java.src}" classpathref="test-classpath" destdir="${java.build}" debug="true" includeantruntime="true"/>
+		<javac srcdir="${java.test}" classpathref="test-classpath" destdir="${java.build}" debug="true" includeantruntime="true"/>
+	</target>
+	<target name="test" depends="compile-test">
+		<junit printsummary="on" haltonfailure="yes">
+			<classpath refid="test-classpath"/>
+			<classpath location="${java.build}"/>
+			<formatter type="brief" usefile="false" />
+			<batchtest fork="true">
+				<fileset dir="${java.test}">
+					<include name="**/*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<!--for the demo server-->
+	<target name="server" description="Runs the demo server">
+		<java jar="${server.jar.file}" fork="true" dir="${demo.dir}">
+			<arg value="${port.arg}"/>
+			<arg value="${web.arg}"/>
+			<arg value="${options.arg}"/>
+			<assertions>
+				<enable/>
+			</assertions>
+		</java>
+	</target>
+
+	<!--for the demo client-->
+	<target name="client" description="Runs the demo client">
+		<java jar="${client.jar.file}" fork="true" dir="${demo.dir}">
+			<assertions>
+				<enable/>
+			</assertions>
+		</java>
+	</target>
+
+    <target name="make-java-doc" description="Generate the Java docs">
+        <echo> Making Java documentation </echo>
+        <delete dir="${javadoc.dir}"/>
+		<javadoc destdir="${javadoc.dir}" Package="true">
+			<classpath refid="java.lib.classpath" />
+			<packageset dir="${java.src.dir}">
+				<include name="client/**"/>
+				<include name="shared/**"/>
+			</packageset>
+		</javadoc>
+   </target>
+
+	<target name="init" description="create build directories">
+		<tstamp/>
+		<mkdir dir="${java.build}"/>
+		<mkdir dir="${java.dist}"/>
+	</target>
+
+	<target name="clean" description="clean build files" >
+		<delete dir="${java.build}"/>
+		<delete dir="${java.dist}"/>
+	</target>
+
+	<target name="compile" depends="init" description="compile the source " >
+		<javac srcdir="${java.src}" destdir="${java.build}" debug="true" includeantruntime="true">
+			<classpath refid="java.lib.classpath" />
+		</javac>
+	</target>
+
+	<target name="package" depends="compile" description="package the jar file" >
+		<mkdir dir="${java.dist}/lib"/>
+		<copy todir="${java.dist}/lib">
+			<fileset dir="${java.lib}">
+				<include name="**"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${java.dist}/images"/>
+		<copy todir="${java.dist}/images">
+			<fileset dir="${java.images}">
+				<include name="**"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${java.dir}/docs"/>
+		<copy todir="${java.dir}/docs">
+			<fileset dir="${demo.dir}/docs">
+				<include name="**"/>
+			</fileset>
+		</copy>
+ 		<jar jarfile="${java.dist}/catan-client.jar" basedir="${java.build}">
+			<manifest>
+				<attribute name="Main-Class" value="client.main.Catan"/>
+				<attribute name="Class-Path" value="${classpath}" />
+			</manifest>
+		</jar>
+ 		<jar jarfile="${java.dist}/catan-server.jar" basedir="${java.build}">
+			<manifest>
+				<attribute name="Main-Class" value="server.ServerCommunicator"/>
+				<attribute name="Class-Path" value="${classpath}" />
+			</manifest>
+		</jar>
+		<jar jarfile="${java.lib.dir}/persistence.jar" basedir="${java.build}">
+			<manifest>
+				<attribute name="Main-Class" value="persistance.main"/>
+				<attribute name="Class-Path" value="${classpath}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="our-client" depends="package" description="compiles, packages, and runs the student client">
+		<property name="port" value="8081"/>
+		<property name="host" value="localhost"/>
+		<java jar="${java.dist}/catan-client.jar" dir="${java.dir}" fork="yes">
+			<sysproperty key="com.sun.management.jmxremote" value=""/>
+			<arg value="-host"/>
+			<arg value="${host}"/>
+			<arg value="-port"/>
+			<arg value="${port}"/>
+			<assertions>
+				<enable/>
+			</assertions>
+		</java>
+	</target>
+
+	<target name="our-server" depends="package" description="compiles, packages, and runs the student server">
+		<property name="persistence-type" value="persistance.FlatPersistance.FlatPersistanceFactory"/>
+		<property name="commands-between-checkpoints" value="10"/>
+		<property name="port" value="8081"/>
+		<property name="wipe" value="false"/>
+		<java jar="${java.dist}/catan-server.jar" dir="${java.dir}" fork="yes">
+			<sysproperty key="com.sun.management.jmxremote" value=""/>
+			<arg value="-persistence-type"/>
+			<arg value="${persistence-type}"/>
+			<arg value="-commands-between-checkpoints"/>
+			<arg value="${commands-between-checkpoints}"/>
+			<arg value="-port"/>
+			<arg value="${port}"/>
+			<arg value="-wipe"/>
+			<arg value="${wipe}"/>
+			<assertions>
+				<enable/>
+			</assertions>
+		</java>
+	</target>
+
+	<target name="make-persistence-jar" depends="package" description="makes jar of only persistence">
+		<java jar="${java.lib.dir}/persistence.jar" dir="${java.dir}" fork="yes"/>
+	</target>
+
+	<target name="wipe-server" description="wipes all persistent storage">
+		<delete dir="${java.dir}/flatPersistenceV01"/>
+		<delete file="${java.dir}/catan.db"/>
+		<delete file="${java.dir}/catan.db-journal"/>
+	</target>
+
+    <target name="make-tester-zip" depends="package" description="makes a zip file for your testing team">
+        <zip destfile="./tester.zip" basedir="${java.dist}" />
+    </target>
+
+</project>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--<item-->
+        <!--android:id="@+id/backItem"-->
+        <!--android:icon="@drawable/arrow_left"-->
+        <!--android:title="Back"-->
+        <!--app:showAsAction="ifRoom"/>-->
+    <item
+        android:id="@+id/upItem"
+        android:icon="@drawable/ic_up_arrow"
+        android:title="Up"
+        app:showAsAction="ifRoom"/>
+
+</menu>

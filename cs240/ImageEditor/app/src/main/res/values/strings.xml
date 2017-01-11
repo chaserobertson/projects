@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Image Editor</string>
+    <string name="file_selector_ok">OK</string>
+    <string name="file_selector_cancel">CANCEL</string>
+    <string name="pick_file">Choose a File</string>
+    <string name="file_selector_button">[Selected File]</string>
+</resources>

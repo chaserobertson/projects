@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.chaserobertson.familymap">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-amzn-sdk android:minSdkVersion="3" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="FamilyMap"
+        tools:replace="android:label"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <uses-library
+            android:name="com.amazon.application.compatibility.enforcer"
+            android:required="false" />
+        <meta-data
+            android:name="required_amazon_package:com.amazon.geo.mapsv2.services"
+            android:value="@integer/amazon_maps_services_version" />
+        <meta-data
+            android:name="amazon_maps_services_required"
+            android:value="true" />
+
+        <activity
+            android:name=".main_activities.MainActivity"
+            android:label="Family Map">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".main_activities.SettingsActivity"
+            android:label="Family Map: Settings"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity
+            android:name=".main_activities.FilterActivity"
+            android:label="Family Map: Filter"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity
+            android:name=".main_activities.SearchActivity"
+            android:label="Family Map: Search"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity
+            android:name=".deep_activities.MapActivity"
+            android:label="Family Map"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity
+            android:name=".deep_activities.DeepActivity"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity
+            android:name=".deep_activities.PersonActivity"
+            android:label="Family Map: Person Details"
+            android:parentActivityName=".main_activities.MainActivity" />
+        <activity android:name=".main_activities.LoginActivity" />
+        <activity android:name=".main_activities.MainMenuActivity" />
+    </application>
+
+</manifest>
