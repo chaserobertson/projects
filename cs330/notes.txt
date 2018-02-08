@@ -1,0 +1,262 @@
+9/8
+language requirements: grammar, syntax, control flow, comparators, variables, primitives, composition, abstraction
+
+9/11
+(list x y..), cons(reverse), append, empty
+
+9/15
+compose nests two functions using lambda (x)
+lambda can essentially be used to point to a function without knowing the name or delay function definition
+
+derivative rules are great for easy functions (standard polynomials)
+printing and I/O are considered side effects, so order of operations does matter
+a decorator is a higher-order function that takes a function as an argument and returns or calls a function
+decorators are useful for keeping track of how many times a function is called, how long a function takes, and memoization(cache values from previous function calls)
+pre-defined decorator wrappers can be applied to functions later in Python by calling @wrapper-name before function definition
+can do parametrized decorators e.g. @requires-permission('admin' or 'client')
+nest decorators to get parameters to inner functions
+
+9/20
+Julia and interpreters
+write a grammar accepts: like unto (+ 3 (/ 2 1)) or 42
+if number, number! if left parenth, expect operator,whitespace,operand,'whitespace,operand'* right parenth
+E ::= (O E E) | n | (E)
+n ::= number
+O ::= operator
+take input, run through lexer to tokenize characters, then parse into parse tree, then calc using tree, output result
+do this in Julia! lexer is given
+
+9/22
+multiple dispatch: multiple functions with same name, different input type
+(with x (+ 1 41) (+ x x)) = 42
+substitution semantics: replace x in E_2 with E_1
+(with x 2 (with x 3 (+ x x))) = 6???
+new sub semantics: scope of x is body of its with, symbol table is a stack of symbol def
+
+9/27
+implementing functions in our language: remember function name(unless anon), arguments, and func body
+to call function: replace function call with function body, replace formal arg with actual arg, in other words (with formal actual (func body))
+environment is a list of delayed substitutions, to allow nesting expressions
+lambda function would create env linking formal args to actual args, execute same as traditional func
+new grammar entry: (lambda symb Expr)
+sometimes program with valid grammar can't be calc'd
+
+10/2
+function definition node is easy?
+with dynamic scoping, recursive functions are easy, but we don't like dynamic scoping
+with static scoping, harder to find recursive function name symbol inside definition
+
+10/4
+closure env points back to ext_env
+if typeof zebinding val == closure val, val.env  = ext_env
+in lambda, if typeof actual param == closure...
+
+new step in interpreting: analysis between parse and calc
+analysis step might replace simple arithmetic with value e.g. replace (+ 1 2) with 3
+might eliminate 'dead code' where branch can never be reached e.g. if(false){}
+code deduplication: extract function from duplicated code to reduce binary code size
+syntactic sugar: shortcuts in grammar that compile and execute same as long form
+analyze symbolNode: return node // same for numnode
+analyze binopNode: analyze both sides, return binop'd result
+
+10/6
+((x x (+ x 1)) 42)
+parses to funcAppNode, lhs is funcDefNode(lambda), rhs is 42
+FDN(lhs s, rhs plusNode) returns closure, funcApp combines closure with value
+
+analysis: syntactic sugar, deduplication, dead code elimination, arithmetic expr simplification
+replace withNode implementation with lambda
+calc funcDefNode returns closureVal
+for dead code elimination: depends only on if0 node
+if if0 condition is constant, can eliminate other branch
+if is numnode, if 0 return lhs, else return rhs
+in analyze, binop and unop nodes can just calc if both sides numnode
+
+10/9
+interpreter 4: mostly add new primitives for image processing
+new terminal node called MatrixVal <: RetVal
+all new function implementations provided, task is to support as syntax in language
+create nodes for each func, parse
+new add: num+num=num, num+matrix=matrix(each entry +num), matrix+matrix=matrix(each entry + corr entry)
+imp: 4 cases, only one rets NumVal (num+num): if both typeofNumVal, same return, else return MatrixVal
+works easily because NumVal and MatrixVal have same member name: n
+
+10/16
+challenge-takeout: give list and number, return list with number removed
+no return values in prolog, make new argument and assign that to output
+takeout(42, [1,2,3,42], what):
+takeout( T, [T|R], R).
+takeout( T, [F|R], [F|S]) :- takeout(T,R,S).
+if already take out T from R, then bind
+if R is empty list, T followed by empty list, set T to 42, R to what, proven true
+with variable as argument, iterates over possibilities
+
+challenge-reverse: give list, return list, extra argument for scratch space
+reverse( [X|Y], Z, W) :- reverse( Y, [X|Z], W).
+reverse( [], X, X).
+pop first element from arg[1], append to arg[2]
+if arg[1] empty, stop and assign arg[3] = arg[2]
+
+challenge-chess queens
+n*n chessboard, n queens placed so they can't attack each other
+each queen must be in own column, x-coord = queen id
+each queen must be in own row
+each queen must not share diagonal
+
+10/18
+--> operator is mostly same as :-
+@< is just <
+-> is like an if statement
+
+10/20
+why prolog for IBM Watson? already needed deep search and logic
+checkers: ...
+cut operator ! is prolog's biggest hack, gives more control than reordering rules and goals
+tells when to stop
+cut always succeeds, but has side effect of committing to whatever search tree branch currently on
+
+10/25
+Elixir syntax
+can only assign to variables once w "=", "==" means check if equal to
+modules start with capitals, vars and funcs start lowercase, symbols start w colon
+for n <- [list of int], n < 5 do n*n end: returns list of members (if < 5) squared
+russian roulette: {5,_} -> IO.puts("bang"), {_,_} -> IO.puts("click")
+Process.monitor(pid) receives message when pid dies
+
+Erlang: "let it crash"
+defensive programming is frowned upon, should all crash and report
+only program happy case, what spec says task should do
+
+10/30 Elixir & metaprogramming
+VS code w/ code runner and vscode-elixir plugins, run elixir repl in console/terminal window
+75% of elixir are written in elixir: subprograms take AST, modify
+so part of writing elixir program might be defining new language features
+keyword quote or func IO.inspect returns AST instead of calc
+Macro.prewalk() takes expression and evaluates function on each node
+unquote(a) interpolates chunks of AST into bigger AST
+macro: runs at compile time and modifies parsed AST's
+
+defmodule While do
+	defmacro while( expr, do: block ) do
+		quote do
+			IO.puts("This is called at runtime")
+			try do
+				for _ <- Stream.cycle([:ok]) do
+					if unquote(expr) do
+						unquote(block)
+					else
+						throw :break
+				end end
+			catch
+				:break -> :ok
+end end end end
+
+c "while.exs"
+import While
+code generating code at compile time
+macro hygiene: never a namespace clash between implementation and usage
+
+11/3
+continuation is the rest of the program at a certain point/line in code
+cothreads/ cooperative multitasking (thread must explicitly yield to others)
+fork(proc) starts new thread that enqueue's location fork was called from, then runs proc
+yield() enqueue's call location, then dequeues and runs dequeue
+thread-exit() if queue empty, exit; otherwise run dequeue
+
+use continuations to implement backtracking search, when fail search backtrack using continuation
+
+11/6
+lab: small amount of code, mostly understanding scaffold
+manual vs automatic memory management (garbage collection)
+principles/duties of garbage collection
+1. find out if it's used
+2. reclaim unused
+3. defragment
+4. soundness - don't mess with needed stuff
+5. efficiency
+can use reference counter: count references to memory, decrement each call seen in-line, collect 0's
+sufficient, not necessary for count to be 0, could be another reference never reached/needed
+
+perfect memory management relies on halting problem, so is impossible to prove
+soundness - never reclaim memory still in use
+utility - collect as much garbage as possible
+efficiency - run fast enough to not add much run-time overhead
+can't perfectly balance all three, but can guarantee soundness, optimize utility & efficiency
+
+1. identify reclaimable space
+2. collect or reclaim fast
+key term: "root set" - the named entities in a program
+construct reachability tree from root set of references, collect unreachables
+
+11/8
+reference counting/mark and sweep
+simplest garbage collection: wait until end of task/program, deallocate everything in one go
+distinguishing garbage: reference counting, marking(tree), copying(move live to new memory)
+reference counting: lightweight, fast, no traversals, no copying, but! leaves memory fragmented
+deferred reference counting: count only heap, every once in a while traverse stack
+!!!mark and sweep: distinguish live from garbage(traverse), reclaim garbage
+problems with mark and sweep: fragmentation, cost proportional to size of heap, locality of reference
+mark and compact: calculate new optimal memory locations to compact into space left by garbage
+!!!stop-and-copy: traverse to find live, copy live to new memory space
+problems with stop-and-copy: about double the memory is needed during copy
+cheney algorithm: scan each object by breadth-first search
+big problem: most require stopping program to modify memory and then restart
+tri-coloring: color for garbage, live, and gray objects(reached but descendents not explored yet)
+tri-coloring invariant: 
+
+11/13
+Rust is basically C with automatic memory management
+FFI is protocol to call another language's library module (python call c library)
+
+11/15
+input interpreter and particular kind of coin to specializer, output specialized interpreter
+no need to write compilers! Make a specializer instead, which creates a compiler
+input specializer and interpreter to specializer, outputs specialized specializer
+
+BF and PyPy: run translator on interpreter, output faster compiler
+
+11/20
+func add can be called as add 1 1 or 1 'add' 1
+foo = (4*) . (10+)
+foo 10 = 80
+$ marks evaluation of stuff to right
+
+11/29
+how to catch bugs: test cases, parser can catch syntax errors, unbound variables
+pros of types: easier to find errors, optimize
+cons of types: less code reuse
+nominal type system: specifically named according to type
+structural type system: structure of object determines type
+
+12/1
+polymorphism: single algorithm with many/any types
+overloading: single symbol refers to several algorithms, by context
+1. build parse tree
+2. label nodes
+3. generate constraints
+
+1.
+define
+fact,lambda
+	n, if
+  	zero?, 1, *
+  	n 	  n, fact
+  			 -
+  			n,1
+2.
+define x: func 
+fact: symbol
+lambda x a: func 
+
+see 1: e1 must be num
+see -: e1 must be num
+see n: n must be same type as e1
+
+12/11
+extensible systems are more popular: python pip
+
+
+
+
+
+

@@ -1,0 +1,15 @@
+#lang racket
+
+(define (lol x)
+  (if (empty? x) 0
+      (+ 1 (lol (rest x)))))
+
+(define (all-even x)
+  (if (empty? x)
+      true
+      (and (even? (first x)) (all-even (rest x)))))
+
+(define (pol x)
+  (if (empty? x)
+      1
+      (* (first x) (pol (rest x)))))

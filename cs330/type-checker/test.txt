@@ -1,0 +1,12 @@
+true
+4
+(+ 1 2)
+(iszero nempty)
+(ifb false (ncons 1 nempty) nempty)
+(with x 3 ( + 1 x))
+(lambda x : number false)
+((lambda x : number false) false)
+nempty
+(nisempty false)
+(nfirst (ncons 1 nempty))
+(nrest nempty)

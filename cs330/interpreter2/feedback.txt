@@ -1,0 +1,30 @@
+        Correct output:
+1. Pass
+2. Error
+3. Error
+4. ExtInt.NumVal(3)
+5. ExtInt.NumVal(1)
+6. Pass
+7. Pass
+8. Error
+9. Error
+10. ExtInt.NumVal(4)
+
+        Your output:
+1. Pass
+2. Error
+3. Error
+4. ExtInt.NumVal(3)
+5. ExtInt.NumVal(1)
+6. Error.LispError("invalid lambda args / values")
+7. Pass
+8. Error
+9. Error
+10. Error.LispError("not enough args")
+
+        Failed tests:
+6. 1 point. calc (lambda (x) x), Make sure your lambdas parse and calc
+10. 1 point. calc ((lambda () 4)), Function application
+
+        Grade:
+8 out of 10
