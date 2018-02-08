@@ -40,7 +40,7 @@ class Main(object):
         self.loss = None
         self.retransmit = None
         self.window = None
-        self.drop = []
+
 
     def parse_options(self):
         parser = optparse.OptionParser(usage="%prog [options]",
@@ -54,29 +54,20 @@ class Main(object):
                           default=0.0,
                           help="random loss rate")
 
-        parser.add_option("-r", "--fastretransmit", action="store_false",
+        parser.add_option("-r", "--fastretransmit", action="store_true",
         					dest="retransmit",
-                            default=True,
+                            default=False,
                             help="fast retransmit flag")
 
         parser.add_option("-w", "--window", type="int", dest="window",
-        					default="1000",
+        					default="3000",
         					help="window size in bytes")
-
-        parser.add_option("-d", "--drop", type="string", dest="drop",
-                            default="",
-                            help="list of sequence numbers to drop")
 
         (options, args) = parser.parse_args()
         self.filename = options.filename
         self.loss = options.loss
         self.retransmit = options.retransmit
         self.window = options.window
-        if options.drop != "":
-            drop = options.drop.split(',')
-            self.drop = map(int, drop)
-        else:
-            self.drop = []
 
     def diff(self):
         args = ['diff', '-u', self.filename, os.path.join(self.directory, self.filename)]
@@ -114,7 +105,7 @@ class Main(object):
         a = AppHandler(self.filename)
 
         # setup connection
-        c1 = TCP(t1, n1.get_address('n2'), 1, n2.get_address('n1'), 1, a, window=self.window, drop=self.drop, retransmit=self.retransmit)
+        c1 = TCP(t1, n1.get_address('n2'), 1, n2.get_address('n1'), 1, a, window=self.window, retransmit=self.retransmit)
         c2 = TCP(t2, n2.get_address('n1'), 1, n1.get_address('n2'), 1, a, window=self.window, retransmit=self.retransmit)
 
         # send a file

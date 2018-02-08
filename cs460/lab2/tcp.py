@@ -12,8 +12,7 @@ class TCP(Connection):
     """ A TCP connection between two hosts."""
 
     def __init__(self, transport, source_address, source_port,
-                 destination_address, destination_port, app=None, 
-                 window=1000,drop=[], retransmit=True):
+                 destination_address, destination_port, app=None, window=1000,drop=[], retransmit=False):
         Connection.__init__(self, transport, source_address, source_port,
                             destination_address, destination_port, app)
 
@@ -31,7 +30,6 @@ class TCP(Connection):
         self.sequence = 0
         # plot sequence numbers
         self.plot_sequence_header()
-        self.plot_cwnd_header()
         # packets to drop
         self.drop = drop
         self.dropped = []
@@ -51,9 +49,6 @@ class TCP(Connection):
         self.dupAckCount = 0
         self.dupAck = True
         self.fast_retransmit = retransmit
-        self.slow_start = True
-        self.threshold = 100000
-        self.increment = 0
 
     def trace(self, message):
         """ Print debugging messages. """
@@ -81,8 +76,6 @@ class TCP(Connection):
     def send(self, data):
         """ Send data on the connection. Called by the application. This
             code currently sends all data immediately. """
-        self.window = self.mss
-        self.slow_start = True
         self.send_buffer.put(data)
 
         while self.send_buffer.outstanding() < self.window:
@@ -120,36 +113,18 @@ class TCP(Connection):
 
     def handle_ack(self, packet):
         """ Handle an incoming ACK. """
-        self.plot_cwnd()
         self.plot_sequence(packet.ack_number - 1000,'ack')
         self.trace("%s (%d) received ACK from %d for %d" % (
             self.node.hostname, packet.destination_address, packet.source_address, packet.ack_number))
         self.cancel_timer()     
         self.timer = Sim.scheduler.add(delay=self.timeout, event='retransmit', handler=self.retransmit)
 
-        #some new additions for TCP Tahoe
         if packet.ack_number > self.sequence:
             #print('sliding window to '+str(packet.ack_number))
             self.send_buffer.slide(packet.ack_number)
-            new_bytes = int(packet.ack_number - self.sequence)
             self.sequence = packet.ack_number
             self.dupAck = True
             self.dupAckCount = 0
-            if self.slow_start: #slow start: inc by mss
-                if new_bytes <= self.mss:
-                    self.window = self.window +  new_bytes
-                else:
-                    self.window = self.window + self.mss
-                if self.window >= self.threshold:
-                    self.slow_start = False
-                    print('TRANSITION! threshold reached: set to additive at '+str(self.threshold))
-            else: #additive increase
-                self.increment += (self.mss * new_bytes) / self.window
-                print('increment increased to '+str(self.increment))
-                if self.increment >= self.mss:
-                    self.window += self.mss
-                    self.increment -= self.mss
-            print('WINDOW SIZE CHANGED TO '+str(self.window))
 
         if packet.ack_number <= self.sequence:
             self.dupAckCount += 1
@@ -159,6 +134,7 @@ class TCP(Connection):
                 self.dupAck = False
                 self.dupAckCount = 0
                 if self.fast_retransmit:
+                    self.cancel_timer
                     self.retransmit('retransmit')
 
         while self.send_buffer.outstanding() < self.window:
@@ -172,23 +148,11 @@ class TCP(Connection):
 
     def retransmit(self, event):
         """ Retransmit data. """
-        #new additions for TCP Tahoe
-        self.slow_start = True
-        if (self.window / 2) > self.mss:
-            extra_bytes = (self.window / 2) % self.mss
-            self.threshold = (self.window / 2) - extra_bytes
-        else:
-            self.threshold = self.mss
-        self.window = self.mss
-        self.increment = 0
         if self.send_buffer.outstanding() < 1:
             return
-        print('TRANSITION! retransmit event: reset to slow start, new ssthresh at '+str(self.threshold))
-
         self.trace("%s (%d) retransmission timer fired" % (self.node.hostname, self.source_address))
         data = self.send_buffer.resend(self.mss, reset=True)
         self.send_packet(data[0], data[1])
-        self.cancel_timer()
         self.timer = Sim.scheduler.add(delay=self.timeout, event='retransmit', handler=self.retransmit)
 
     def cancel_timer(self):
@@ -223,12 +187,3 @@ class TCP(Connection):
         self.trace("%s (%d) sending TCP ACK to %d for %d" % (
             self.node.hostname, self.source_address, self.destination_address, packet.ack_number))
         self.transport.send_packet(packet)
-
-    def plot_cwnd_header(self):
-        if self.node.hostname =='n1':
-            Sim.plot('cwnd.csv','Time,Congestion Window\n')
-
-    def plot_cwnd(self):
-        ''' Print plotting messages. '''
-        if self.node.hostname =='n1':
-            Sim.plot('cwnd.csv','%s,%s\n' % (Sim.scheduler.current_time(),self.window))
