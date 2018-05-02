@@ -1,0 +1,253 @@
+401R
+
+statistical machine learning
+data science: not all data is equal, which data is useful
+book: kevin murphy, machine learning first ed.
+
+each lab:
+1. data
+2. a model
+3. an inference question + algorithm for answering it
+4. a visulization
+
+Bayesian modeling: find structure in data while dealing explicity with uncertainty
+
+Concepts of Machine Learning
+paradigms: supervised, unsupervised, semi supervised, reinforcement, active
+supervised: given set of data, predict probability of any output given some input
+unsupervised: given set of data, give probability distribution of inputs ( finds input outliers )
+semi: some labeled data, some unlabeled
+reinforcement: not directly told right or wrong, but given reward when right
+
+classification vs regression: set categories of outputs vs continuous real number value
+vs ranking: compare data against others
+collaborative filtering (image search)
+
+basics of probability:
+probability is common sense reduced to calculus to explain intuition
+many other ways to deal with uncertainty, but probability has axioms
+a random variable is neither random nor a variable, it is a placeholder for value affected by probability
+
+sum rule: marginal, p(x,y) summed is p(x)
+product rule: conditional, p(x|y)p(y) product is p(x)
+marginalization: take 3d bar graph and sum in each direction to create 2 2d bar graphs, one for each variable
+p(x,y) is 2d array, p(x) is 1d array constructed by sum of each row/column (x/y)
+p(x,y) = p(x|y)p(y)
+
+p(x|y,z) everything to the right of conditional bar is given
+continuous random variables would be all real numbers, or infinite subset
+joint continuous would be two continuous variables (height & weight, etc.)
+
+1/19
+BAYE'S LAW 
+prior * likelihood / normalize = posterior
+
+prior:
+p(cal) = 500/1000/1500
+	   = 0.1/0.7 /0.2
+
+likelihood:
+p(taste|cal) = cardboard/meh/yum/decadent
+			 = 0.8/		 0.1/0.05/ 0.05		500
+			 = 0.1/		 0.4/0.4/ 0.1		1000
+			 = 0.0/		 0.1/0.3/ 0.6		1500
+
+posterior = p(cal) * p(cal|taste=meh) / norm
+		  = 0.1/0.7/0.2 * 0.1/0.4/0.1 / norm
+		  = 0.01 / 0.28 / 0.02 // norm
+		  = 0.032 / 0.903 / 0.065
+
+prior = [0.95,.05]
+likelihood = [.005,.995]
+posterior = [.00475,.04975] / norm
+norm = .0545
+posterior = [.087,.913]
+where .087 is probability disease is present in positive test
+
+prior = [.00001, .99999]
+likelihood = [.95, .00005]
+			 [.05, .99995]
+posterior = prior * likelihood(dis|test=pos)
+		  = [.0000095, .00004999]
+		  = [.15966, .84033]
+
+1/22
+p(64 in concept | data) = sum over hyp p(64 in concept, H | data)
+product rule: sum over hyp p(64 in concept | hyp,data) * p(hyp | data)
+matrix mult p(hyp | data) by membership matrix for posterior
+
+the stronger your prior and weaker your likelihood, slower the posterior will match data
+
+1/29
+python and KDE lab:
+using multivariate gaussian equation from book/lectures
+
+what i need is p(x) = avg(gaussian) or p(x) = 1/N sigma_N G(x|u_i = x_i, alpha^2)
+gaussian eq in book, demo code is for full KDE, easy method is single gaussian for each class compared to test 
+
+2/5
+data {(1,2),(3,4)}
+x_test=1.5
+mean(x)=x+3
+covariance k(x,y)= exp( -0.5*(x-y)^2)
+
+2 		4			matrix
+4 		6
+ytest	4.5
+
+matrix=
+1	.14	.88
+.14	1	.33
+.88	.33	1
+
+kernels can be defined over any sort of space
+but they must construct symmetric and positive definite covariance matrix
+
+2/9
+noise: add based on values, not indices (not just diagonal)
+kernel methods work by embedding data into some feature space, looking for linear relationships
+
+k(x,y) = (1 + xy)^3 = (1 + 2xy + x2y2)(1 + xy) = 1 + 3xy + 3x2y2 + x3y3
+theta(x)T * theta(y)
+theta(z) = 1 + sqrt(3)z + sqrt(3)z^2 + z^3
+
+kernel trick: calculate similarity between points without calculating all of the features
+a kernel is valid if it can be written as a function of the dot product
+lab: given data, construct kernel depending on each feature, do gaussian process registration using custom kernel
+
+2/12
+Large-scale GPR / GMM
+kernel must be symmetric, positive definite, and satisfy some inner product function
+dayofweek could be compared as matching or not (1 or 0), by dot product of hot-encoded week vectors
+date could be compared as month similarity / calendar day delta / w reducing weight by year delta
+
+no variances in this lab! 
+with mean of 0, u' reduces to u' = K(X_t, X)alpha where alpha = K(X,X)^-1 * (Y - u(X))
+
+computational strategies for large-scale GPR ( O(n^2 to n^3) ):
+subset of data: random sample from data to reduce size of K matrix
+reduced rank approximations (rank is dimension of subspace spanned by matrix / number of linear-ind rows/cols)
+matrix inversion lemma reduces O(n^3) calc into O(q^3)
+Nystrom approximation (like mean field appr): pick m datapoints, each representing some subspace of data
+subset of regressors: random sample from data points, use as K_mm matrix in equations
+equations result in 1*m * m*1 = scalar prediction
+
+2/14
+for 1000 landmark points: if calc big matrix everytime, 1 billion seconds runtime
+practice/debug with way less training points, 
+vectorize kernel, bonus for parallel code
+two possible problems: kernel off (negative), numerical precision
+kernels that compare all days of week at once, add kernels together
+dot product one-hot encoded dow matrix (dow as row, dpoints as columns) w y matrix (dow as row, landmarks)
+dont repeat with numpy append, np.zeros will preallocate
+OR: not one-hot encoded, just 1 by million matrix
+
+GMM and Expectation maximization:
+GMMs are great when components have unique natural mean, but clustered data needs to be separated
+alpha for each k acts as normalizing (must add to one) without restricting to equal impact
+membership weights of each point: how likely is point to be in each cluster
+
+EM: estimate parameters, number clusters, number of points
+repeat until done
+
+2/23
+graphical models
+marginalization: can trees be marginalized
+bayes ball algorithm: follow directional graph to find dependencies
+
+state space models and kalman filter
+optional estimation algorithm
+extract info from what you can measure to predict what you cant measure (int vs ext temperature of jet)
+fuse three measurements to get a more accurate prediction
+
+zt = g( ut, zt-1, et )
+state diagram of z and y show chain, so future is conditionally independent of the past, given current state
+special kalman detail: assume every distribution normal gaussian
+linear gaussian dynamical system: z and y linear combination of previous state, controls, and noise
+gather / intuit a trend from extremely noisy measurements (applied to stock price, drone location)
+
+2/28
+tune the variances by order of magnitude
+y is expected observation, z is state
+Var[z_t] = (A_t * sigma_t-1 * A_t.T) + Q_t
+Var[y_t] = (C_t * Var[z_t] * C_t.T) + R_t
+kalman filter is linear and gaussian - too easy
+
+monte-carlo integration
+10 ^ 108 atoms in universe
+2 ^ 768 operations for 2 gridline estimation through 768-dimension space (28 * 28 image)
+
+3/2
+final project: take risks (cool idea, try hard, fail) should be 20 hours of work
+problems from Kaggle are ok
+problem should be from this class e.g. statistical machine learning tools (filters, EM, etc)
+
+quiz: f(x) = e^x^2, p(x) = sin(e^x)
+integrate normal gaussian times sin(e^x)
+np.mean( np.sin( np.exp( np.random.randn(1000000, 1) ) ) )
+does 1000000 sample size S, fully vectorized functions take len 1000000 array of gaussian samples
+
+importance sampling: transform samples from one distribution into samples from another (1-1 map)
+multiply functions by q(x)/q(x), include p(x)/q(x) in f(x) sum, sample from q(x)
+ensure distribution q covers dist p so p(x)/q(x) != inf
+ensure bounds roughly match, prefer roughly matching shape
+
+3/5
+ratio corrects for difference between real distribution and easier distribution
+represent state as a bunch of weighted spikes(delta) called particles
+given particles and weights at time t-1
+for each particle s:
+propose extension using q
+reweight each particle w based on q, w_t-1
+
+degeneracy problem: most weights go to zero (remove, replicate surviving particles)
+
+3/9
+MCMC: algorithm
+latent dirichlet allocation: models how language something
+
+lab: delta spikes on particle location
+	gaussian proposal distribution
+	for each particle, if true location, calc new sonars, compare to true sonars, alter weight
+	resample same number of particles according to weights with every t
+
+help session:
+	likelihood is how to get weights / likelihood is weight
+	weights reset after resample
+	S is N
+	parts is 3xN matrix
+	cast_rays transforms to 11xN sensor data
+	liks is 1xN likelihoods/weights from comparison of present sonar data to particle sonar
+	weight of particles is probability of being resampled
+	np.random.choice(range(N), prob=liks, replace=true) samples particle indexes by liks
+	set particles to new indices e.g. parts = parts[inds from np.random.choice]
+	reset liks to 1/S equal weights
+	X_noise and Y_noise = np.random.normal(range to vectorize)
+	theta = np.random.rand() * 2pi
+
+	weighted average of particles give expected value
+	sum(X * weight)
+	sigma_proposal = 0.01
+	sigma_lik = 25
+
+3/26
+vectorize qs? double for loop each document, each word
+sample from np.random.LDA()
+
+Gibbs sampling is a particular type of MCMC
+MCMC fits a histogram to complex distribution over time of exploring space
+Monte Carlo samples a bunch of random numbers to check on target distribution
+markov chain changes proposal distribution location to reduce match to posterior
+
+4/2
+recommender system: competition between students
+collaborative: ratings by anyone included
+content-based: requires content analysis
+knowledge-based: use humans and some rubric/rating system
+
+Naive Bayes: content-based, all instances/attributes independent, class as most likely
+
+
+
+
+
